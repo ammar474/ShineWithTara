@@ -1,0 +1,1 @@
+export const URL = "mongodb+srv://ammarmangotech:55WpbNnM1ll4v4sw@cluster0.a1vbr.mongodb.net/shinewithstar?retryWrites=true&w=majority&appName=Cluster0"
