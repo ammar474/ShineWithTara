@@ -25,6 +25,7 @@ app.use("/Product", productRoutes);
 app.use("/Reviews", reviewsRoutes);
 app.use("/Faqs", faqsRoutes);
 
+//test console
 
 const PORT = process.env.PORT || 3000;
 mongoose
