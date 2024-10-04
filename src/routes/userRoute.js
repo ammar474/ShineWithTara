@@ -31,7 +31,7 @@ router.post('/Register', async (req, res) => {
     if (newUser) { return res.status(201).json({ message: 'User registered successfully' }); }
     res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
-    console.error(err);
+    console.error(error);
     res.status(500).json({ message: error.message});
   }
 });

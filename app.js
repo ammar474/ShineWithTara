@@ -7,7 +7,7 @@ import reviewsRoutes from "./src/routes/reviewsRoute.js";
 import productRoutes from "./src/routes/productsRoute.js";
 import faqsRoutes from "./src/routes/faqsRoute.js";
 import dotenv from "dotenv";
-import cors from "cors"
+import cors from "cors";
 
 
 
