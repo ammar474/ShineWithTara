@@ -1,14 +1,18 @@
 import { Order } from "../model/orderModel.js";
 
 export const AddOrder = async  (req , res) => {
-    const { customerName, items, totalAmount, orderStatus } = req.body
-    if (!customerName || !items || !totalAmount || !orderStatus) {
+    const { firstName, lastName , email , phone , address , items, totalAmount, orderStatus } = req.body
+    if ( !firstName || !lastName  ||   !email  || !phone ||!address || !items || !totalAmount || !orderStatus) {
        return res.status(400).send({ message: "fill the field properly" });
     }
     try {
  
        const addOrder = new Order({
-          customerName,
+         firstName,
+         lastName,
+         email,
+         phone,
+         address,
           items,
           totalAmount,
           orderStatus
