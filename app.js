@@ -17,15 +17,18 @@ const app = express();
 app.use(express.json());
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
 app.use(cors({
     origin: [
         "http://localhost:3001",
     ]
 }));
 
+  
 app.use(
     "/public/uploads",
     express.static(path.join(__dirname, "public/uploads"))
+    
   );
 dotenv.config();
 app.use("/User", userRouter);

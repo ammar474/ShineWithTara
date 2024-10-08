@@ -30,3 +30,14 @@ const upload = multer({
         }
     }
 });
+
+
+
+
+ //    const items = {
+   //     product_id : req.body.items[0].id, 
+   //     productName : req.body.items[0].name,
+   //     price : req.body.items[0].price, 
+   //     quantity : req.body.items[0].quantity,
+   //     image : req.body.items[0].image 
+   //   }  
