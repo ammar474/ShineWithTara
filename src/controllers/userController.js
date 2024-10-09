@@ -34,7 +34,7 @@ export const Register =  async (req, res) => {
 
 export const Login = async (req ,res) => {
     const { email, password } = req.body;
-
+     const lastLoginDate = new Date();
   if (!email || !password) {
     return res.status(400).json({ message: 'Email and password are required' });
   }
@@ -43,17 +43,18 @@ export const Login = async (req ,res) => {
     if (!user) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
-
+     
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
-
+           await User.findByIdAndUpdate(user.id , {lastLogin : lastLoginDate})
+        
     const token = jwt.sign({ userId: user._id }, process.env.SECRET_KEY, { expiresIn: '1h' });
 
-    return res.status(200).json({ token, message: ' User Login successful' });
+    return res.status(200).json({ token, message: ' User Login successful'});
   } catch (error) {
-    console.error(err);
+    console.error(error);
     return res.status(500).json({ message: error.message });
   }
 

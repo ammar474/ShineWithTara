@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+
 const userSchema = mongoose.Schema({
      name: {
            type: String,
@@ -15,6 +16,10 @@ const userSchema = mongoose.Schema({
           type: String,
           reqired: true
 
+     },
+     lastLogin :{
+          type: Date,
+          default : Date.now
      }
 
 });
