@@ -3,9 +3,9 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
  
 export const Register =  async (req, res) => { 
-    const { email, password } = req.body;
-    if (!email || !password) {
-      return res.status(400).json({ message: 'Email and password are required' });
+    const {name , email, password } = req.body;
+    if ( !name , !email || !password) {
+      return res.status(400).json({ message: 'email and password are required' });
     }
     if (email === process.env.Email && password === process.env.Password) {
       return res.status(400).json({ message: 'email already in used' });
@@ -13,18 +13,19 @@ export const Register =  async (req, res) => {
     try {
       const existingUser = await User.findOne({ email });
       if (existingUser) {
-        return res.status(400).json({ message: 'Email already in used' });
+        return res.status(400).json({ message: 'email already in used' });
       }
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, salt);
   
       const user = new User({
+        name,
         email,
         password: hashedPassword
       });
       const newUser = await user.save();
-      if (newUser) { return res.status(200).json({ message: 'User registered successfully' }); }
-       return res.status(400).json({ message: 'User not register' });
+      if (newUser) { return res.status(200).json({ message: 'user registered successfully' }); }
+       return res.status(400).json({ message: 'user not register' });
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: error.message});
