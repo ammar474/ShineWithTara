@@ -1,6 +1,8 @@
 import { User } from "../model/userModel.js";
 import bcrypt from "bcrypt";
+import adimnAuth from "../middleware/adminAuth.js";
 import jwt from "jsonwebtoken";
+
  
 export const Register =  async (req, res) => { 
     const {name , email, password } = req.body;
@@ -50,7 +52,7 @@ export const Login = async (req ,res) => {
     }
            await User.findByIdAndUpdate(user.id , {lastLogin : lastLoginDate})
         
-    const token = jwt.sign({ userId: user._id }, process.env.SECRET_KEY, { expiresIn: '1h' });
+    const token = jwt.sign({  userId: user._id  , role : req.body.role  }, process.env.SECRET_KEY, { expiresIn: '1h' });
 
     return res.status(200).json({ token, message: ' User Login successful', user });
   } catch (error) {
@@ -65,7 +67,7 @@ export const AdminLogin =  (req , res) => {
   if(!email || !password){
     res.status(400).send({message : "fill the required fields"});
   }else if(email === process.env.Email && password === process.env.Password){
-    const token = jwt.sign({}, process.env.SECRET_KEY, { expiresIn: '1h' });
+    const token = jwt.sign({role : req.body.role}, process.env.SECRET_KEY, { expiresIn: '1h' });
     return res.status(200).json({ token, message: 'admin Login successful' });
   }else{
     res.status(400).send({message : "Invalid Credentials"});

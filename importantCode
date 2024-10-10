@@ -58,117 +58,82 @@ const upload = multer({
 // });
 
 // const upload = multer({ storage: storage });
+  
 
+//  for role add 
+const jwt = require('jsonwebtoken');
 
+// Secret key for signing the token
+const SECRET_KEY = 'your-secret-key';
 
+// Example: User login handler
+app.post('/login', (req, res) => {
+  const { email, password } = req.body;
 
+  // Fake user data for example (in real case, validate from database)
+  const user = {
+    id: 1,
+    email: 'user@example.com',
+    role: 'user' // or 'admin' based on user type
+  };
 
-const path = require('path');
-const fs = require('fs');
-const Product = require('../models/Product'); // Product model
+  // Authenticate the user (check credentials in real case)
+  if (email === user.email && password === 'password123') {
+    // Create JWT token with role encoded
+    const token = jwt.sign(
+      {
+        id: user.id,
+        email: user.email,
+        role: user.role // Encode the role in token
+      },
+      SECRET_KEY,
+      { expiresIn: '1h' } // Token expires in 1 hour
+    );
 
-app.put('/update-product/:id', upload.single('image'), async (req, res) => {
-    try {
-        // Product find karain
-        let product = await Product.findById(req.params.id);
-        if (!product) {
-            return res.status(404).json({ message: 'Product not found' });
-        }
-
-        console.log('Product Found:', product);
-
-        // Agar nayi image hai toh purani image ko delete karain
-        if (req.file) {
-            const oldImagePath = path.join(__dirname, '../public/uploads/', product.image);
-            console.log('Old Image Path:', oldImagePath);
-
-            // Purani image delete karain agar wo mojood hai
-            if (fs.existsSync(oldImagePath)) {
-                try {
-                    fs.unlinkSync(oldImagePath);
-                    console.log('Old image deleted successfully');
-                } catch (err) {
-                    console.error('Error deleting old image:', err);
-                }
-            } else {
-                console.log('Old image does not exist');
-            }
-
-            // Nayi image ka naam save karain
-            product.image = req.file.filename;
-            console.log('New Image Uploaded:', req.file.filename);
-        }
-
-        // Baqi fields ko update karain
-        product.name = req.body.name || product.name;
-        product.price = req.body.price || product.price;
-        product.category = req.body.category || product.category;
-
-        // Update karain database mein
-        await product.save();
-        res.status(200).json({ message: 'Product updated successfully', product });
-
-    } catch (error) {
-        console.error('Error updating product:', error);
-        res.status(500).json({ message: 'Error updating product', error });
-    }
+    res.json({ token });
+  } else {
+    res.status(401).json({ message: 'Invalid credentials' });
+  }
 });
 
 
+//  for check  the role admin or user 
 
 
-
-
-import { fileURLToPath } from 'url';
-import { dirname, resolve } from 'path';
-import fs from 'fs';
-import Product from '../models/Product.js'; // Product model
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-app.put('/update-product/:id', upload.single('image'), async (req, res) => {
-    try {
-        let product = await Product.findById(req.params.id);
-        if (!product) {
-            return res.status(404).json({ message: 'Product not found' });
-        }
-
-        // Agar nayi image hai toh purani image ko delete karain
-        if (req.file) {
-            // Base directory ka path correct karein
-            const uploadsDir = resolve(__dirname, '../../public/uploads/'); // Public directory ka path set karein
-            
-            // Purani image ka path
-            const oldImagePath = resolve(uploadsDir, product.image); 
-            console.log('Old Image Path:', oldImagePath);
-
-            // Purani image delete karain agar wo exist karti ho
-            if (fs.existsSync(oldImagePath)) {
-                try {
-                    fs.unlinkSync(oldImagePath);
-                    console.log('Old image deleted successfully');
-                } catch (err) {
-                    console.error('Error deleting old image:', err);
-                }
-            }
-
-            // Nayi image ko save karain
-            product.image = req.file.filename;
-            console.log('New Image Uploaded:', req.file.filename);
-        }
-
-        // Baqi fields update karain
-        product.name = req.body.name || product.name;
-        product.price = req.body.price || product.price;
-        product.category = req.body.category || product.category;
-
-        await product.save();
-        res.status(200).json({ message: 'Product updated successfully', product });
-
-    } catch (error) {
-        console.error('Error updating product:', error);
-        res.status(500).json({ message: 'Error updating product', error });
+  // Middleware to authenticate token and check role
+const authenticateToken = (req, res, next) => {
+    const token = req.headers['authorization'];
+  
+    if (!token) return res.status(403).send('Token required');
+  
+    jwt.verify(token, SECRET_KEY, (err, user) => {
+      if (err) return res.status(403).send('Invalid token');
+      
+      req.user = user;
+      next();
+    });
+  };
+  
+  // Protected route example (admin only)
+  app.get('/admin-dashboard', authenticateToken, (req, res) => {
+    if (req.user.role !== 'admin') {
+      return res.status(403).send('Access denied, admin only');
     }
-});
+    
+    res.send('Welcome to Admin Dashboard');
+  });
+  
+  // Protected route example (user only)
+  app.get('/user-dashboard', authenticateToken, (req, res) => {
+    if (req.user.role !== 'user') {
+      return res.status(403).send('Access denied, user only');
+    }
+    
+    res.send('Welcome to User Dashboard');
+  });
+
+
+
+
+
 
