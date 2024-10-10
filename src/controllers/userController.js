@@ -35,7 +35,7 @@ export const Register =  async (req, res) => {
 };
 
 export const Login = async (req ,res) => {
-    const { email, password } = req.body;
+    const { email, password , role } = req.body;
      const lastLoginDate = new Date();
   if (!email || !password) {
     return res.status(400).json({ message: 'Email and password are required' });
@@ -52,7 +52,7 @@ export const Login = async (req ,res) => {
     }
            await User.findByIdAndUpdate(user.id , {lastLogin : lastLoginDate})
         
-    const token = jwt.sign({  userId: user._id  , role : req.body.role  }, process.env.SECRET_KEY, { expiresIn: '1h' });
+    const token = jwt.sign({  userId: user._id  , role  }, process.env.SECRET_KEY, { expiresIn: '1h' });
 
     return res.status(200).json({ token, message: ' User Login successful', user });
   } catch (error) {
@@ -63,11 +63,11 @@ export const Login = async (req ,res) => {
 }
 
 export const AdminLogin =  (req , res) => {
-  const { email , password} = req.body
+  const { email , password , role} = req.body
   if(!email || !password){
     res.status(400).send({message : "fill the required fields"});
   }else if(email === process.env.Email && password === process.env.Password){
-    const token = jwt.sign({role : req.body.role}, process.env.SECRET_KEY, { expiresIn: '1h' });
+    const token = jwt.sign({role}, process.env.SECRET_KEY, { expiresIn: '1h' });
     return res.status(200).json({ token, message: 'admin Login successful' });
   }else{
     res.status(400).send({message : "Invalid Credentials"});
