@@ -11,7 +11,7 @@ router.post('/Login', Login);
 
 router.post('/AdminLogin' , AdminLogin );
 
-router.get("/GetUser",  GetUser);
+router.get("/GetUser", authentication ,  GetUser);
 
 router.get("/GetUser/:id", authentication , GetUserById);
 
