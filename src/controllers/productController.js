@@ -55,8 +55,6 @@ export const ProductUpdateById = async (req, res) => {
   const { bookName, bookPrice, category } = req.body
   const { id } = req.params
   const imageFile = req.file
-  console.log("filename" ,  imageFile.filename);
-  
   if (!bookName, !bookPrice, !category, !imageFile) {
     return res.status(401).send({ message: " send all required fieldd " });
   }
@@ -75,9 +73,7 @@ export const ProductUpdateById = async (req, res) => {
         } catch (err) {
             console.error('Error deleting old image:', err);
         }
-    } else {
-        console.log('Old image does not exist');
-    }
+    } 
 }
 const upadteProduct = {
       bookName,

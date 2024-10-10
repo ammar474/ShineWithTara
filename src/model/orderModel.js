@@ -43,10 +43,12 @@ const orderSchema = new mongoose.Schema({
     type: String,
     default: 'pending'
   },
-  created_At: {
+  createdAt: {
     type: Date,
     default: Date.now
   }
+},{
+  timestamps: true
 });
 
 export const Order = mongoose.model('Order', orderSchema);

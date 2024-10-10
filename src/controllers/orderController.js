@@ -37,7 +37,7 @@ export const AddOrder = async  (req , res) => {
 
 export const GetOrder = async (req , res) => {
     try {
-        const getOrderData = await Order.find();
+        const getOrderData = await Order.find().sort({createdAt : -1});
         if (getOrderData) { return res.status(200).send({ getOrderData }) }
         else {
            return res.status(404).send({ message: "data not found" });

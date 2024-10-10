@@ -133,6 +133,19 @@ const authenticateToken = (req, res, next) => {
   });
 
 
+  const orderSchema = new mongoose.Schema(
+    {
+    product: String,
+    user: String,
+    status: String,
+    totalAmount: Number,
+    
+},
+ { timestamps: true 
+
+ }); // This adds createdAt and updatedAt fields automatically
+
+const Order = mongoose.model('Order', orderSchema);
 
 
 
