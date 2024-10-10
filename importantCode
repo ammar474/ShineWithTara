@@ -41,3 +41,134 @@ const upload = multer({
    //     quantity : req.body.items[0].quantity,
    //     image : req.body.items[0].image 
    //   }  
+
+
+
+//    const multer = require('multer');
+// const path = require('path');
+// const fs = require('fs');
+
+// const storage = multer.diskStorage({
+//     destination: (req, file, cb) => {
+//         cb(null, 'public/uploads/');
+//     },
+//     filename: (req, file, cb) => {
+//         cb(null, Date.now() + path.extname(file.originalname));
+//     }
+// });
+
+// const upload = multer({ storage: storage });
+
+
+
+
+
+const path = require('path');
+const fs = require('fs');
+const Product = require('../models/Product'); // Product model
+
+app.put('/update-product/:id', upload.single('image'), async (req, res) => {
+    try {
+        // Product find karain
+        let product = await Product.findById(req.params.id);
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+
+        console.log('Product Found:', product);
+
+        // Agar nayi image hai toh purani image ko delete karain
+        if (req.file) {
+            const oldImagePath = path.join(__dirname, '../public/uploads/', product.image);
+            console.log('Old Image Path:', oldImagePath);
+
+            // Purani image delete karain agar wo mojood hai
+            if (fs.existsSync(oldImagePath)) {
+                try {
+                    fs.unlinkSync(oldImagePath);
+                    console.log('Old image deleted successfully');
+                } catch (err) {
+                    console.error('Error deleting old image:', err);
+                }
+            } else {
+                console.log('Old image does not exist');
+            }
+
+            // Nayi image ka naam save karain
+            product.image = req.file.filename;
+            console.log('New Image Uploaded:', req.file.filename);
+        }
+
+        // Baqi fields ko update karain
+        product.name = req.body.name || product.name;
+        product.price = req.body.price || product.price;
+        product.category = req.body.category || product.category;
+
+        // Update karain database mein
+        await product.save();
+        res.status(200).json({ message: 'Product updated successfully', product });
+
+    } catch (error) {
+        console.error('Error updating product:', error);
+        res.status(500).json({ message: 'Error updating product', error });
+    }
+});
+
+
+
+
+
+
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
+import fs from 'fs';
+import Product from '../models/Product.js'; // Product model
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+app.put('/update-product/:id', upload.single('image'), async (req, res) => {
+    try {
+        let product = await Product.findById(req.params.id);
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+
+        // Agar nayi image hai toh purani image ko delete karain
+        if (req.file) {
+            // Base directory ka path correct karein
+            const uploadsDir = resolve(__dirname, '../../public/uploads/'); // Public directory ka path set karein
+            
+            // Purani image ka path
+            const oldImagePath = resolve(uploadsDir, product.image); 
+            console.log('Old Image Path:', oldImagePath);
+
+            // Purani image delete karain agar wo exist karti ho
+            if (fs.existsSync(oldImagePath)) {
+                try {
+                    fs.unlinkSync(oldImagePath);
+                    console.log('Old image deleted successfully');
+                } catch (err) {
+                    console.error('Error deleting old image:', err);
+                }
+            }
+
+            // Nayi image ko save karain
+            product.image = req.file.filename;
+            console.log('New Image Uploaded:', req.file.filename);
+        }
+
+        // Baqi fields update karain
+        product.name = req.body.name || product.name;
+        product.price = req.body.price || product.price;
+        product.category = req.body.category || product.category;
+
+        await product.save();
+        res.status(200).json({ message: 'Product updated successfully', product });
+
+    } catch (error) {
+        console.error('Error updating product:', error);
+        res.status(500).json({ message: 'Error updating product', error });
+    }
+});
+
