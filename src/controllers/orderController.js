@@ -36,16 +36,21 @@ export const AddOrder = async  (req , res) => {
 }
 
 export const GetOrder = async (req , res) => {
-    try {
-        const getOrderData = await Order.find().sort({createdAt : -1});
-        if (getOrderData) { return res.status(200).send({ getOrderData }) }
-        else {
-           return res.status(404).send({ message: "data not found" });
-        }
-     } catch (error) {
-        console.log(error);
-        return res.status(500).send({ message: error.message });
-     }
+   if(req.data.role === "admin"){
+      try {
+         const getOrderData = await Order.find().sort({createdAt : -1});
+         if (getOrderData) { return res.status(200).send({ getOrderData }) }
+         else {
+            return res.status(404).send({ message: "data not found" });
+         }
+      } catch (error) {
+         console.log(error);
+         return res.status(500).send({ message: error.message });
+      }
+   }else{
+      return res.status(403).send({ message: "access denied for admin only" });
+   }
+  
 }
 
 export const GetOrderById = async (req , res) => {
