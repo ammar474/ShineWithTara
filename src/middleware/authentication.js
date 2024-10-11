@@ -12,7 +12,7 @@ const authentication = (req , res , next) =>{
       try {
         const data = jwt.verify(token , process.env.SECRET_KEY);   
         console.log(data);
-        req.user = data
+        req.data = data
       next();
       } catch (error) {
          return res.status(401).send({message : error})

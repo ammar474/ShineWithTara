@@ -75,7 +75,8 @@ export const AdminLogin =  (req , res) => {
 } 
 
 export const GetUser = async (req , res ) => {
-    try {
+    if(req.data.role === "admin"){
+      try {
         const getUserData = await User.find();
         if (getUserData) { return res.status(200).send({ getUserData }) }
         else {
@@ -85,6 +86,12 @@ export const GetUser = async (req , res ) => {
         console.log(error);
         return res.status(500).send({ message: error.message });
       }
+     }else{
+      return res.status(403).send({ message: "access denied for admin only" });
+       
+     }
+     
+ 
 }
 
 export const GetUserById = async (req , res ) => {

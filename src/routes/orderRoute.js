@@ -1,12 +1,13 @@
 import express from "express";
 import { AddOrder , GetOrder , GetOrderById , UpdateProduct } from "../controllers/orderController.js";
+import authentication from "../middleware/authentication.js";
 
 
 const orderRoutes = express.Router();
 
 orderRoutes.post("/AddOrder", AddOrder );
 
-orderRoutes.get("/GetOrders",  GetOrder);
+orderRoutes.get("/GetOrders",authentication ,  GetOrder);
 
 orderRoutes.get("/GetOrder/:id", GetOrderById );
 
