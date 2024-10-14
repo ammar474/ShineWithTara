@@ -1,17 +1,14 @@
 import { User } from "../model/userModel.js";
-import fieldValidate from "../helpers/validateInput.js"
+import validateInput from "../helpers/validateInput.js"
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
  
 export const Register =  async (req, res) => { 
     const {name , email, password } = req.body;
-    // if ( !name , !email || !password) {
-    //   return res.status(400).json({ message: 'email and password are required' });
-    // }
+  
     const error = validateInput(['name', 'email', 'password'], req.body);
-
-    if(error){return res.status(400).json({ message: 'email and password are required' })}
+    if(error){return res.status(400).json({ message: 'Please Fill All Required Fields' })}
 
     if (email === process.env.Email && password === process.env.Password) {
        return res.status(400).json({ message: 'email already in used' });
@@ -85,7 +82,8 @@ export const GetUser = async (req , res ) => {
   const skip = (page - 1) * limit;
       try {
         const getUserData = await User.find().skip(skip).limit(limit);
-        if (getUserData) { return res.status(200).send({ getUserData }) }
+        const totalUsers = await User.countDocuments();
+        if (getUserData) { return res.status(200).send({ getUserData , totalUsers }) }
         else {
           return res.status(404).send({ message: "data not found" });
         }

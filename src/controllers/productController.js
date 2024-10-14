@@ -41,7 +41,8 @@ export const GetProduct = async (req, res) => {
     const query = searchQuery ? { category: searchQuery } : {};
 
     const getProductData = await Product.find(query).skip(skip).limit(limit);
-    if (getProductData) { return res.status(200).send({ getProductData }) }
+    const totalProducts = await Product.countDocuments(query);
+    if (getProductData) { return res.status(200).send({ getProductData , totalProducts })}  
     else {
       return res.status(404).send({ message: "data not found" });
     }

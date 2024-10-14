@@ -86,3 +86,86 @@ if (error) {
 
 
 
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+const PaginatedList = () => {
+  const [products, setProducts] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1); // Initial page
+  const [limit, setLimit] = useState(10); // Initial limit (items per page)
+  const [totalPages, setTotalPages] = useState(0);
+
+  // Fetch data when `currentPage` or `limit` changes
+  useEffect(() => {
+    fetchProducts(currentPage, limit);
+  }, [currentPage, limit]);
+
+  // API call to fetch products with pagination
+  const fetchProducts = async (page, limit) => {
+    try {
+      const response = await axios.get(`/api/products?page=${page}&limit=${limit}`);
+      setProducts(response.data.data);
+      setTotalPages(response.data.totalPages);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    }
+  };
+
+  // Handle page change
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+  };
+
+  // Handle limit change (items per page)
+  const handleLimitChange = (event) => {
+    setLimit(event.target.value);
+    setCurrentPage(1); // Reset to first page when limit changes
+  };
+
+  return (
+    <div>
+      <div>
+        <label>Items per page: </label>
+        <select value={limit} onChange={handleLimitChange}>
+          <option value={5}>5</option>
+          <option value={10}>10</option>
+          <option value={20}>20</option>
+        </select>
+      </div>
+
+      <ul>
+        {products.map((product) => (
+          <li key={product._id}>{product.name}</li>
+        ))}
+      </ul>
+
+      <div className="pagination">
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          Previous
+        </button>
+
+        {[...Array(totalPages).keys()].map((num) => (
+          <button
+            key={num + 1}
+            onClick={() => handlePageChange(num + 1)}
+            className={currentPage === num + 1 ? 'active' : ''}
+          >
+            {num + 1}
+          </button>
+        ))}
+
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default PaginatedList;
