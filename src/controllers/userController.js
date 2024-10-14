@@ -1,15 +1,20 @@
 import { User } from "../model/userModel.js";
+import fieldValidate from "../helpers/validateInput.js"
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
  
 export const Register =  async (req, res) => { 
     const {name , email, password } = req.body;
-    if ( !name , !email || !password) {
-      return res.status(400).json({ message: 'email and password are required' });
-    }
+    // if ( !name , !email || !password) {
+    //   return res.status(400).json({ message: 'email and password are required' });
+    // }
+    const error = validateInput(['name', 'email', 'password'], req.body);
+
+    if(error){return res.status(400).json({ message: 'email and password are required' })}
+
     if (email === process.env.Email && password === process.env.Password) {
-      return res.status(400).json({ message: 'email already in used' });
+       return res.status(400).json({ message: 'email already in used' });
     }
     try {
       const existingUser = await User.findOne({ email });
@@ -75,9 +80,11 @@ export const AdminLogin =  (req , res) => {
 } 
 
 export const GetUser = async (req , res ) => {
-    if(req.data.role === "admin"){
+  const page = req.query.page;
+  const limit = req.query.limit;
+  const skip = (page - 1) * limit;
       try {
-        const getUserData = await User.find();
+        const getUserData = await User.find().skip(skip).limit(limit);
         if (getUserData) { return res.status(200).send({ getUserData }) }
         else {
           return res.status(404).send({ message: "data not found" });
@@ -86,10 +93,7 @@ export const GetUser = async (req , res ) => {
         console.log(error);
         return res.status(500).send({ message: error.message });
       }
-     }else{
-      return res.status(403).send({ message: "access denied for admin only" });
-       
-     }
+   
      
  
 }

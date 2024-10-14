@@ -57,95 +57,31 @@ const upload = multer({
 //     }
 // });
 
-// const upload = multer({ storage: storage });
-  
+// const upload = multer({ storage: storage
 
-//  for role add 
-const jwt = require('jsonwebtoken');
-
-// Secret key for signing the token
-const SECRET_KEY = 'your-secret-key';
-
-// Example: User login handler
-app.post('/login', (req, res) => {
-  const { email, password } = req.body;
-
-  // Fake user data for example (in real case, validate from database)
-  const user = {
-    id: 1,
-    email: 'user@example.com',
-    role: 'user' // or 'admin' based on user type
-  };
-
-  // Authenticate the user (check credentials in real case)
-  if (email === user.email && password === 'password123') {
-    // Create JWT token with role encoded
-    const token = jwt.sign(
-      {
-        id: user.id,
-        email: user.email,
-        role: user.role // Encode the role in token
-      },
-      SECRET_KEY,
-      { expiresIn: '1h' } // Token expires in 1 hour
-    );
-
-    res.json({ token });
-  } else {
-    res.status(401).json({ message: 'Invalid credentials' });
+// validate  input field  
+exports.validateInput = (requiredFields, reqBody) => {
+  const missingFields = requiredFields.filter(field => !reqBody[field]);
+  if (missingFields.length > 0) {
+    return `Missing fields: ${missingFields.join(', ')}`;
   }
-});
+  return null;
+};
 
+// in controller 
+const { validateInput } = require('../utils/helpers');
 
-//  for check  the role admin or user 
+const error = validateInput(['name', 'email', 'password'], req.body);
+if (error) {
+  return res.status(400).json({ message: error });
+}
 
-
-  // Middleware to authenticate token and check role
-const authenticateToken = (req, res, next) => {
-    const token = req.headers['authorization'];
   
-    if (!token) return res.status(403).send('Token required');
+
   
-    jwt.verify(token, SECRET_KEY, (err, user) => {
-      if (err) return res.status(403).send('Invalid token');
-      
-      req.user = user;
-      next();
-    });
-  };
-  
-  // Protected route example (admin only)
-  app.get('/admin-dashboard', authenticateToken, (req, res) => {
-    if (req.user.role !== 'admin') {
-      return res.status(403).send('Access denied, admin only');
-    }
-    
-    res.send('Welcome to Admin Dashboard');
-  });
-  
-  // Protected route example (user only)
-  app.get('/user-dashboard', authenticateToken, (req, res) => {
-    if (req.user.role !== 'user') {
-      return res.status(403).send('Access denied, user only');
-    }
-    
-    res.send('Welcome to User Dashboard');
-  });
 
 
-  const orderSchema = new mongoose.Schema(
-    {
-    product: String,
-    user: String,
-    status: String,
-    totalAmount: Number,
-    
-},
- { timestamps: true 
-
- }); // This adds createdAt and updatedAt fields automatically
-
-const Order = mongoose.model('Order', orderSchema);
+ 
 
 
 
