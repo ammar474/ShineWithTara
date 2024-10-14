@@ -7,7 +7,7 @@ const orderRoutes = express.Router();
 
 orderRoutes.post("/AddOrder", AddOrder );
 
-orderRoutes.get("/GetOrders",authentication ,  GetOrder);
+orderRoutes.get("/GetOrders", GetOrder);
 
 orderRoutes.get("/GetOrder/:id", GetOrderById );
 
