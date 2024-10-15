@@ -1,10 +1,14 @@
 import { Order } from "../model/orderModel.js";
 
 export const AddOrder = async  (req , res) => {
-   const { firstName, lastName , email , phone , address , items , totalAmount} = req.body
-    if ( !firstName || !lastName  ||   !email  || !phone ||!address || !items || !totalAmount) {
+   console.log( "body" ,  req.body);
+   
+   const  {userId ,firstName, lastName , email , phone , address , items , totalAmount} = req.body
+    if ( !firstName || !lastName  ||   !email  || !phone ||!address || !items || !totalAmount || !userId) {
        return res.status(400).send({ message: "fill the field properly" });
     }
+    console.log( "userid",userId);
+    
     const item = {
       product_id : req.body.items[0].id, 
       productName : req.body.items[0].name,
@@ -15,6 +19,7 @@ export const AddOrder = async  (req , res) => {
     try {
  
        const addOrder = new Order({
+         userId,
          firstName,
          lastName,
          email,
@@ -66,6 +71,26 @@ export const GetOrderById = async (req , res) => {
         return res.status(500).send({ message: error.message });
      }
 }
+
+export const GetOrderByUserId = async (req , res) => {
+       const {id} = req.params
+       const userId = id
+   try {
+      if(!req.params){
+         return res.status(404).send({message :"userId not found"})
+       }
+        const userOrder = await Order.find({userId})
+         if(userOrder){ return res.status(200).send({userOrder})}
+         else{
+            return res.status(404).send({message : "order not found"});
+         }
+    } catch (error) {
+       console.log(error);
+       return res.status(500).send({message : error.message});
+    }
+      
+}
+
 
 export const UpdateProduct = async (req , res ) => {
     const{ orderStatus }= req.body

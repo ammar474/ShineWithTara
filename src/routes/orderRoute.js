@@ -1,5 +1,5 @@
 import express from "express";
-import { AddOrder , GetOrder , GetOrderById , UpdateProduct } from "../controllers/orderController.js";
+import { AddOrder , GetOrder , GetOrderById , UpdateProduct , GetOrderByUserId  } from "../controllers/orderController.js";
 import authentication from "../middleware/authentication.js";
 
 
@@ -10,6 +10,8 @@ orderRoutes.post("/AddOrder", AddOrder );
 orderRoutes.get("/GetOrders", GetOrder);
 
 orderRoutes.get("/GetOrder/:id", GetOrderById );
+
+orderRoutes.get("/GetOrderByUserId/:id", GetOrderByUserId);
 
 orderRoutes.put("/Update/:id", UpdateProduct);
 

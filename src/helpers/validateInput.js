@@ -5,5 +5,4 @@
     }
     return null;
   };
-
-  export default validateInput;
+ export default validateInput;
