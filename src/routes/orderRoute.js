@@ -11,7 +11,7 @@ orderRoutes.get("/GetOrders", GetOrder);
 
 orderRoutes.get("/GetOrder/:id", GetOrderById );
 
-orderRoutes.get("/GetOrderByUserId/:id", GetOrderByUserId);
+orderRoutes.get("/GetOrderByUserId/:userId", GetOrderByUserId);
 
 orderRoutes.put("/Update/:id", UpdateProduct);
 

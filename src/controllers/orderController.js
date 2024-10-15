@@ -41,7 +41,7 @@ export const AddOrder = async  (req , res) => {
 }
 
 export const GetOrder = async (req , res) => {
-   if(req.data.role === "admin"){
+   
       try {
          const getOrderData = await Order.find().sort({createdAt : -1});
          if (getOrderData) { return res.status(200).send({ getOrderData }) }
@@ -52,9 +52,7 @@ export const GetOrder = async (req , res) => {
          console.log(error);
          return res.status(500).send({ message: error.message });
       }
-   }else{
-      return res.status(403).send({ message: "access denied for admin only" });
-   }
+   
   
 }
 
@@ -73,13 +71,13 @@ export const GetOrderById = async (req , res) => {
 }
 
 export const GetOrderByUserId = async (req , res) => {
-       const {id} = req.params
-       const userId = id
-   try {
-      if(!req.params){
+    const {userId} = req.params
+
+    try {
+      if(!userId){
          return res.status(404).send({message :"userId not found"})
        }
-        const userOrder = await Order.find({userId})
+        const userOrder = await Order.find({userId}).sort({ createdAt: -1 })
          if(userOrder){ return res.status(200).send({userOrder})}
          else{
             return res.status(404).send({message : "order not found"});
