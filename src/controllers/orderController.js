@@ -1,21 +1,16 @@
 import { Order } from "../model/orderModel.js";
 
 export const AddOrder = async  (req , res) => {
-   console.log( "body" ,  req.body);
+   console.log( "body items" ,  req.body.items[0].id);
    
    const  {userId ,firstName, lastName , email , phone , address , items , totalAmount} = req.body
     if ( !firstName || !lastName  ||   !email  || !phone ||!address || !items || !totalAmount || !userId) {
        return res.status(400).send({ message: "fill the field properly" });
     }
-    console.log( "userid",userId);
+   
     
-    const item = {
-      product_id : req.body.items[0].id, 
-      productName : req.body.items[0].name,
-      price : req.body.items[0].price, 
-      quantity : req.body.items[0].quantity,
-      image : req.body.items[0].image 
-    } 
+    
+    
     try {
  
        const addOrder = new Order({
@@ -25,7 +20,7 @@ export const AddOrder = async  (req , res) => {
          email,
          phone,
          address,
-         items : item,
+         items,
          totalAmount,
      })
        const newOrder = await addOrder.save();

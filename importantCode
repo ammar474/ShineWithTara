@@ -206,54 +206,126 @@ export const AddOrder = async (req, res) => {
     image: items[0].image,
   };
 
-  try {
-    const addOrder = new Order({
-      userId, // Attach the userId to the order
-      firstName,
-      lastName,
-      email,
-      phone,
-      address,
-      items: item,
-      totalAmount,
-    });
 
-    const newOrder = await addOrder.save();
-    if (newOrder) {
-      return res.status(200).send({ order: newOrder });
-    } else {
-      return res.status(400).send({ message: "Add order properly" });
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(500).send({ error: error.message });
+  function dynamicMapFrontendToModel(data) {
+    const modelKeys = {
+      'fullName': 'name',
+      'mobile': 'phone',
+      'address': 'location'
+      // Aur jo bhi mapping chahiye aap de sakte hain
+    };
+  
+    return Object.keys(data).reduce((acc, key) => {
+      const mappedKey = modelKeys[key] || key;  // Agar mapping nahi hai, toh wahi key use hogi
+      acc[mappedKey] = data[key];
+      return acc;
+    }, {});
   }
+  
+  const frontendData = {
+    fullName: "Ali Ahmed",
+    mobile: "1234567890",
+    address: "Karachi"
+  };
+  
+  const mappedData = dynamicMapFrontendToModel(frontendData);
+  console.log(mappedData); // { name: 'Ali Ahmed', phone: '1234567890', location: 'Karachi' }
+  
+
+ 
+ // Frontend se aane wala data jo array of objects mein hai
+const frontendData = [
+  {
+    fullName: "Ali Ahmed",
+    mobile: "1234567890",
+    address: "Karachi"
+  },
+  {
+    fullName: "Sara Khan",
+    mobile: "0987654321",
+    address: "Lahore"
+  }
+];
+
+// Mapping object jo frontend ke keys ko backend ke model ke keys se map karega
+const keyMapping = {
+  fullName: 'name',
+  mobile: 'phone',
+  address: 'location'
 };
 
+// Function jo ek object ke keys ko map karega
+function mapObjectKeys(obj, mapping) {
+  let mappedObject = {};
+  for (let key in obj) {
+    if (mapping[key]) {
+      mappedObject[mapping[key]] = obj[key];
+    }
+  }
+  return mappedObject;
+}
 
-import mongoose from "mongoose";
+// Array ke har object ke keys ko map karna
+const mappedArray = frontendData.map(item => mapObjectKeys(item, keyMapping));
 
-const orderSchema = new mongoose.Schema(
-  {
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, // Link to the User model
-    firstName: String,
-    lastName: String,
-    email: String,
-    phone: String,
-    address: String,
-    items: [
-      {
-        product_id: String,
-        productName: String,
-        price: Number,
-        quantity: Number,
-        image: String,
-      },
-    ],
-    totalAmount: Number,
-    orderStatus: { type: String, default: "Processing" },
-  },
-  { timestamps: true }
-);
+console.log(mappedArray);
+// Output: 
+// [
+//   { name: 'Ali Ahmed', phone: '1234567890', location: 'Karachi' },
+//   { name: 'Sara Khan', phone: '0987654321', location: 'Lahore' }
+// ]
 
-export const Order = mongoose.model("Order", orderSchema);
+// Ab mapped data ko mongoose model mein save karna
+mappedArray.forEach(async (mappedData) => {
+  const user = new User(mappedData);
+  await user.save();
+});
+
+
+// Helper function jo frontend data ko map karta hai aur mongoose model mein save karta hai
+async function saveMappedDataToModel(frontendData, keyMapping, Model) {
+  // Function jo ek object ke keys ko map karega
+  function mapObjectKeys(obj, mapping) {
+    let mappedObject = {};
+    for (let key in obj) {
+      if (mapping[key]) {
+        mappedObject[mapping[key]] = obj[key];
+      }
+    }
+    return mappedObject;
+  }
+
+  // Array ke har object ko map karke mongoose model mein save karna
+  const mappedArray = frontendData.map(item => mapObjectKeys(item, keyMapping));
+
+  // Saare mapped data ko mongoose model mein save karna
+  try {
+    await Promise.all(mappedArray.map(async (mappedData) => {
+      const document = new Model(mappedData); // Model ke hisaab se naya document create karna
+      await document.save(); // Save karna
+    }));
+    console.log("All data saved successfully");
+  } catch (error) {
+    console.error("Error saving data:", error);
+  }
+}
+
+
+// Helper function jo frontend data ko map karta hai aur updated data return karta hai
+function mapDataToModelFields(frontendData, keyMapping) {
+  // Function jo ek object ke keys ko map karega
+  function mapObjectKeys(obj, mapping) {
+    let mappedObject = {};
+    for (let key in obj) {
+      if (mapping[key]) {
+        mappedObject[mapping[key]] = obj[key];
+      }
+    }
+    return mappedObject;
+  }
+
+  // Array ke har object ko map karke naya array banana
+  const mappedArray = frontendData.map(item => mapObjectKeys(item, keyMapping));
+
+  return mappedArray;  // Mapped data return karna
+}
