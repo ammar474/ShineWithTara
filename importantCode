@@ -59,273 +59,78 @@ const upload = multer({
 
 // const upload = multer({ storage: storage
 
-// validate  input field  
-exports.validateInput = (requiredFields, reqBody) => {
-  const missingFields = requiredFields.filter(field => !reqBody[field]);
-  if (missingFields.length > 0) {
-    return `Missing fields: ${missingFields.join(', ')}`;
-  }
-  return null;
-};
-
-// in controller 
-const { validateInput } = require('../utils/helpers');
-
-const error = validateInput(['name', 'email', 'password'], req.body);
-if (error) {
-  return res.status(400).json({ message: error });
-}
-
-  
-
-  
-
-
  
-
-
-
-
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-
-const PaginatedList = () => {
-  const [products, setProducts] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1); // Initial page
-  const [limit, setLimit] = useState(10); // Initial limit (items per page)
-  const [totalPages, setTotalPages] = useState(0);
-
-  // Fetch data when `currentPage` or `limit` changes
-  useEffect(() => {
-    fetchProducts(currentPage, limit);
-  }, [currentPage, limit]);
-
-  // API call to fetch products with pagination
-  const fetchProducts = async (page, limit) => {
-    try {
-      const response = await axios.get(`/api/products?page=${page}&limit=${limit}`);
-      setProducts(response.data.data);
-      setTotalPages(response.data.totalPages);
-    } catch (error) {
-      console.error('Error fetching products:', error);
-    }
-  };
-
-  // Handle page change
-  const handlePageChange = (newPage) => {
-    setCurrentPage(newPage);
-  };
-
-  // Handle limit change (items per page)
-  const handleLimitChange = (event) => {
-    setLimit(event.target.value);
-    setCurrentPage(1); // Reset to first page when limit changes
-  };
-
-  return (
-    <div>
-      <div>
-        <label>Items per page: </label>
-        <select value={limit} onChange={handleLimitChange}>
-          <option value={5}>5</option>
-          <option value={10}>10</option>
-          <option value={20}>20</option>
-        </select>
-      </div>
-
-      <ul>
-        {products.map((product) => (
-          <li key={product._id}>{product.name}</li>
-        ))}
-      </ul>
-
-      <div className="pagination">
-        <button
-          onClick={() => handlePageChange(currentPage - 1)}
-          disabled={currentPage === 1}
-        >
-          Previous
-        </button>
-
-        {[...Array(totalPages).keys()].map((num) => (
-          <button
-            key={num + 1}
-            onClick={() => handlePageChange(num + 1)}
-            className={currentPage === num + 1 ? 'active' : ''}
-          >
-            {num + 1}
-          </button>
-        ))}
-
-        <button
-          onClick={() => handlePageChange(currentPage + 1)}
-          disabled={currentPage === totalPages}
-        >
-          Next
-        </button>
-      </div>
-    </div>
-  );
+// Mapping object between frontend keys and backend model keys
+const keyMapping = {
+  frontendKey1: 'modelKey1',
+  frontendKey2: 'modelKey2',
+  // Add as many key mappings as needed
 };
 
-export default PaginatedList;
-
-// get oderes of user 
-export const GetOrdersByUserId = async (req, res) => {
-  const userId = req.data.userId; // Assuming req.data holds the authenticated user's ID
-
-  try {
-    const orders = await Order.find({ userId }).sort({ createdAt: -1 }); // Get orders by userId
-    if (orders.length > 0) {
-      return res.status(200).send({ orders });
-    } else {
-      return res.status(404).send({ message: "No orders found for this user" });
-    }
-  } catch (error) {
-    console.log(error);
-    return res.status(500).send({ message: error.message });
-  }
+// Function to rename the keys dynamically
+const renameKeys = (dataArray) => {
+  return dataArray.map(obj => {
+      let newObj = {};
+      for (let key in obj) {
+          if (keyMapping[key]) {
+              newObj[keyMapping[key]] = obj[key]; // Rename key
+          } else {
+              newObj[key] = obj[key]; // If key has no mapping, keep it unchanged
+          }
+      }
+      return newObj;
+  });
 };
 
-
-
-
-export const AddOrder = async (req, res) => {
-  const { firstName, lastName, email, phone, address, items, totalAmount ,  } = req.body;
-  const userId = req.data.userId; // Assuming `req.data` holds the authenticated user's ID
-
-  if (!firstName || !lastName || !email || !phone || !address || !items || !totalAmount) {
-    return res.status(400).send({ message: "Fill the field properly" });
-  }
-
-  const item = {
-    product_id: items[0].id,
-    productName: items[0].name,
-    price: items[0].price,
-    quantity: items[0].quantity,
-    image: items[0].image,
-  };
-
-
-  function dynamicMapFrontendToModel(data) {
-    const modelKeys = {
-      'fullName': 'name',
-      'mobile': 'phone',
-      'address': 'location'
-      // Aur jo bhi mapping chahiye aap de sakte hain
-    };
-  
-    return Object.keys(data).reduce((acc, key) => {
-      const mappedKey = modelKeys[key] || key;  // Agar mapping nahi hai, toh wahi key use hogi
-      acc[mappedKey] = data[key];
-      return acc;
-    }, {});
-  }
-  
-  const frontendData = {
-    fullName: "Ali Ahmed",
-    mobile: "1234567890",
-    address: "Karachi"
-  };
-  
-  const mappedData = dynamicMapFrontendToModel(frontendData);
-  console.log(mappedData); // { name: 'Ali Ahmed', phone: '1234567890', location: 'Karachi' }
-  
-
- 
- // Frontend se aane wala data jo array of objects mein hai
+// Sample array of objects coming from frontend
 const frontendData = [
-  {
-    fullName: "Ali Ahmed",
-    mobile: "1234567890",
-    address: "Karachi"
-  },
-  {
-    fullName: "Sara Khan",
-    mobile: "0987654321",
-    address: "Lahore"
-  }
+  { frontendKey1: 'value1', frontendKey2: 'value2', otherKey: 'value3' },
+  { frontendKey1: 'value4', frontendKey2: 'value5', otherKey: 'value6' }
 ];
 
-// Mapping object jo frontend ke keys ko backend ke model ke keys se map karega
-const keyMapping = {
-  fullName: 'name',
-  mobile: 'phone',
-  address: 'location'
-};
+// Call the function to rename keys
+const renamedData = renameKeys(frontendData);
 
-// Function jo ek object ke keys ko map karega
-function mapObjectKeys(obj, mapping) {
-  let mappedObject = {};
-  for (let key in obj) {
-    if (mapping[key]) {
-      mappedObject[mapping[key]] = obj[key];
-    }
-  }
-  return mappedObject;
-}
-
-// Array ke har object ke keys ko map karna
-const mappedArray = frontendData.map(item => mapObjectKeys(item, keyMapping));
-
-console.log(mappedArray);
-// Output: 
-// [
-//   { name: 'Ali Ahmed', phone: '1234567890', location: 'Karachi' },
-//   { name: 'Sara Khan', phone: '0987654321', location: 'Lahore' }
-// ]
-
-// Ab mapped data ko mongoose model mein save karna
-mappedArray.forEach(async (mappedData) => {
-  const user = new User(mappedData);
-  await user.save();
-});
+console.log(renamedData);
 
 
-// Helper function jo frontend data ko map karta hai aur mongoose model mein save karta hai
-async function saveMappedDataToModel(frontendData, keyMapping, Model) {
-  // Function jo ek object ke keys ko map karega
-  function mapObjectKeys(obj, mapping) {
-    let mappedObject = {};
-    for (let key in obj) {
-      if (mapping[key]) {
-        mappedObject[mapping[key]] = obj[key];
-      }
-    }
-    return mappedObject;
-  }
 
-  // Array ke har object ko map karke mongoose model mein save karna
-  const mappedArray = frontendData.map(item => mapObjectKeys(item, keyMapping));
+  
 
-  // Saare mapped data ko mongoose model mein save karna
-  try {
-    await Promise.all(mappedArray.map(async (mappedData) => {
-      const document = new Model(mappedData); // Model ke hisaab se naya document create karna
-      await document.save(); // Save karna
-    }));
-    console.log("All data saved successfully");
-  } catch (error) {
-    console.error("Error saving data:", error);
-  }
-}
+  
 
 
-// Helper function jo frontend data ko map karta hai aur updated data return karta hai
-function mapDataToModelFields(frontendData, keyMapping) {
-  // Function jo ek object ke keys ko map karega
-  function mapObjectKeys(obj, mapping) {
-    let mappedObject = {};
-    for (let key in obj) {
-      if (mapping[key]) {
-        mappedObject[mapping[key]] = obj[key];
-      }
-    }
-    return mappedObject;
-  }
+ 
 
-  // Array ke har object ko map karke naya array banana
-  const mappedArray = frontendData.map(item => mapObjectKeys(item, keyMapping));
 
-  return mappedArray;  // Mapped data return karna
-}
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  
+
+ 
+
+
+
+
+
+
+
+
+
+  
+
+

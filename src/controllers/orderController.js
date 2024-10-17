@@ -1,15 +1,34 @@
 import { Order } from "../model/orderModel.js";
 
 export const AddOrder = async  (req , res) => {
-   console.log( "body items" ,  req.body.items[0].id);
    
-   const  {userId ,firstName, lastName , email , phone , address , items , totalAmount} = req.body
+const  {userId ,firstName, lastName , email , phone , address , items , totalAmount} = req.body
     if ( !firstName || !lastName  ||   !email  || !phone ||!address || !items || !totalAmount || !userId) {
        return res.status(400).send({ message: "fill the field properly" });
     }
-   
-    
-    
+     const keyMapping = {
+           id :"product_id",
+           name : "productName",
+           price : "price",
+           quantity : "quantity",
+           image : "image"
+    } 
+
+    const newItems = items.map(obj => {
+         let newObj = {}
+         for(let key in obj ){
+            if(keyMapping[key]){
+               newObj[keyMapping[key]] = obj[key];
+            }
+            else{
+               newObj[key] = obj[key];
+            }
+         }
+        
+      return newObj
+ })
+     console.log("newItems" , newItems);
+     
     
     try {
  
@@ -20,7 +39,7 @@ export const AddOrder = async  (req , res) => {
          email,
          phone,
          address,
-         items,
+         items : newItems,
          totalAmount,
      })
        const newOrder = await addOrder.save();
