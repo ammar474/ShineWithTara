@@ -10,8 +10,11 @@ const renameKeys = (dataArray) => {
         let newObj = {};
         for (let key in obj) {
             if (keyMapping[key]) {
+                console.log( "keymapping" , keyMapping[key]);
+                
                 newObj[keyMapping[key]] = obj[key]; 
-            } else {
+                console.log( "objkey" ,obj[key]);
+             } else {
                 newObj[key] = obj[key]; 
             }
         }

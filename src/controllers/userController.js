@@ -7,8 +7,10 @@ export const Register = async (req, res) => {
   const { name, email, password } = req.body;
 
   const error = validateInput(["name", "email", "password"], req.body);
+  console.log(error);
+  
   if (error) {
-    return res.status(400).json({ message: "Please Fill All Required Fields" });
+    return res.status(400).json({ message: "please fill all required fields" });
   }
 
   if (email === process.env.Email && password === process.env.Password) {
@@ -39,7 +41,7 @@ export const Register = async (req, res) => {
 };
 
 export const Login = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password } = req.body;  
   const lastLoginDate = new Date();
   if (!email || !password) {
     return res.status(400).json({ message: "Email and password are required" });
@@ -69,20 +71,6 @@ export const Login = async (req, res) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: error.message });
-  }
-};
-
-export const AdminLogin = (req, res) => {
-  const { email, password } = req.body;
-  if (!email || !password) {
-    res.status(400).send({ message: "fill the required fields" });
-  } else if (email === process.env.Email && password === process.env.Password) {
-    const token = jwt.sign({ role: "admin" }, process.env.SECRET_KEY, {
-      expiresIn: "1h",
-    });
-    return res.status(200).json({ token, message: "admin Login successful" });
-  } else {
-    res.status(400).send({ message: "Invalid Credentials" });
   }
 };
 
